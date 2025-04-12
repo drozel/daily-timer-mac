@@ -1,6 +1,9 @@
 # Daily Timer for macOS
 
-A simple macOS timer app built in Swift using SwiftUI.  
+
+![](screenshots/flow.gif)
+
+A simple macOS timer app built in Swift using SwiftUI.
 Designed to run daily standups efficiently by timing each team member.
 
 > ⚠️ This was my first Swift project — developed quickly to improve my daily life as engineering manager. I’m not a professional Swift or UI developer, so some parts may be hacky or non-idiomatic. Pull requests and suggestions are welcome!
@@ -58,4 +61,3 @@ Thanks to ChatGPT for helping me fill in Swift gaps quickly.
 ## 📬 Feedback
 
 Feel free to open issues or PRs — especially Swift improvements!
-
