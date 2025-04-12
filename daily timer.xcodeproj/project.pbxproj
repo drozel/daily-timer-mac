@@ -1,0 +1,558 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		58A2DA862DA4FC20003A4F15 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58A2DA6F2DA4FC1C003A4F15 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58A2DA762DA4FC1C003A4F15;
+			remoteInfo = "daily timer";
+		};
+		58A2DA902DA4FC20003A4F15 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58A2DA6F2DA4FC1C003A4F15 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58A2DA762DA4FC1C003A4F15;
+			remoteInfo = "daily timer";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		58A2DA772DA4FC1C003A4F15 /* daily timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "daily timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		58A2DA852DA4FC20003A4F15 /* daily timerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "daily timerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		58A2DA8F2DA4FC20003A4F15 /* daily timerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "daily timerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		58A2DA792DA4FC1C003A4F15 /* daily timer */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "daily timer";
+			sourceTree = "<group>";
+		};
+		58A2DA882DA4FC20003A4F15 /* daily timerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "daily timerTests";
+			sourceTree = "<group>";
+		};
+		58A2DA922DA4FC20003A4F15 /* daily timerUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "daily timerUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58A2DA742DA4FC1C003A4F15 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA822DA4FC20003A4F15 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA8C2DA4FC20003A4F15 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		58A2DA6E2DA4FC1C003A4F15 = {
+			isa = PBXGroup;
+			children = (
+				58A2DA792DA4FC1C003A4F15 /* daily timer */,
+				58A2DA882DA4FC20003A4F15 /* daily timerTests */,
+				58A2DA922DA4FC20003A4F15 /* daily timerUITests */,
+				58A2DA782DA4FC1C003A4F15 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		58A2DA782DA4FC1C003A4F15 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				58A2DA772DA4FC1C003A4F15 /* daily timer.app */,
+				58A2DA852DA4FC20003A4F15 /* daily timerTests.xctest */,
+				58A2DA8F2DA4FC20003A4F15 /* daily timerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58A2DA762DA4FC1C003A4F15 /* daily timer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58A2DA992DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timer" */;
+			buildPhases = (
+				58A2DA732DA4FC1C003A4F15 /* Sources */,
+				58A2DA742DA4FC1C003A4F15 /* Frameworks */,
+				58A2DA752DA4FC1C003A4F15 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				58A2DA792DA4FC1C003A4F15 /* daily timer */,
+			);
+			name = "daily timer";
+			packageProductDependencies = (
+			);
+			productName = "daily timer";
+			productReference = 58A2DA772DA4FC1C003A4F15 /* daily timer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		58A2DA842DA4FC20003A4F15 /* daily timerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58A2DA9C2DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timerTests" */;
+			buildPhases = (
+				58A2DA812DA4FC20003A4F15 /* Sources */,
+				58A2DA822DA4FC20003A4F15 /* Frameworks */,
+				58A2DA832DA4FC20003A4F15 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				58A2DA872DA4FC20003A4F15 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				58A2DA882DA4FC20003A4F15 /* daily timerTests */,
+			);
+			name = "daily timerTests";
+			packageProductDependencies = (
+			);
+			productName = "daily timerTests";
+			productReference = 58A2DA852DA4FC20003A4F15 /* daily timerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		58A2DA8E2DA4FC20003A4F15 /* daily timerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58A2DA9F2DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timerUITests" */;
+			buildPhases = (
+				58A2DA8B2DA4FC20003A4F15 /* Sources */,
+				58A2DA8C2DA4FC20003A4F15 /* Frameworks */,
+				58A2DA8D2DA4FC20003A4F15 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				58A2DA912DA4FC20003A4F15 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				58A2DA922DA4FC20003A4F15 /* daily timerUITests */,
+			);
+			name = "daily timerUITests";
+			packageProductDependencies = (
+			);
+			productName = "daily timerUITests";
+			productReference = 58A2DA8F2DA4FC20003A4F15 /* daily timerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		58A2DA6F2DA4FC1C003A4F15 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					58A2DA762DA4FC1C003A4F15 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					58A2DA842DA4FC20003A4F15 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 58A2DA762DA4FC1C003A4F15;
+					};
+					58A2DA8E2DA4FC20003A4F15 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 58A2DA762DA4FC1C003A4F15;
+					};
+				};
+			};
+			buildConfigurationList = 58A2DA722DA4FC1C003A4F15 /* Build configuration list for PBXProject "daily timer" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 58A2DA6E2DA4FC1C003A4F15;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 58A2DA782DA4FC1C003A4F15 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58A2DA762DA4FC1C003A4F15 /* daily timer */,
+				58A2DA842DA4FC20003A4F15 /* daily timerTests */,
+				58A2DA8E2DA4FC20003A4F15 /* daily timerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		58A2DA752DA4FC1C003A4F15 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA832DA4FC20003A4F15 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA8D2DA4FC20003A4F15 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		58A2DA732DA4FC1C003A4F15 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA812DA4FC20003A4F15 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58A2DA8B2DA4FC20003A4F15 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		58A2DA872DA4FC20003A4F15 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58A2DA762DA4FC1C003A4F15 /* daily timer */;
+			targetProxy = 58A2DA862DA4FC20003A4F15 /* PBXContainerItemProxy */;
+		};
+		58A2DA912DA4FC20003A4F15 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58A2DA762DA4FC1C003A4F15 /* daily timer */;
+			targetProxy = 58A2DA902DA4FC20003A4F15 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		58A2DA972DA4FC20003A4F15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		58A2DA982DA4FC20003A4F15 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		58A2DA9A2DA4FC20003A4F15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "daily timer/daily_timer.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Daily Timer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.drozel.daily-timer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		58A2DA9B2DA4FC20003A4F15 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "daily timer/daily_timer.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Daily Timer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.drozel.daily-timer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		58A2DA9D2DA4FC20003A4F15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kinexon.daily-timerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/daily timer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/daily timer";
+			};
+			name = Debug;
+		};
+		58A2DA9E2DA4FC20003A4F15 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kinexon.daily-timerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/daily timer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/daily timer";
+			};
+			name = Release;
+		};
+		58A2DAA02DA4FC20003A4F15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kinexon.daily-timerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "daily timer";
+			};
+			name = Debug;
+		};
+		58A2DAA12DA4FC20003A4F15 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kinexon.daily-timerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "daily timer";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58A2DA722DA4FC1C003A4F15 /* Build configuration list for PBXProject "daily timer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A2DA972DA4FC20003A4F15 /* Debug */,
+				58A2DA982DA4FC20003A4F15 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58A2DA992DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A2DA9A2DA4FC20003A4F15 /* Debug */,
+				58A2DA9B2DA4FC20003A4F15 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58A2DA9C2DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A2DA9D2DA4FC20003A4F15 /* Debug */,
+				58A2DA9E2DA4FC20003A4F15 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58A2DA9F2DA4FC20003A4F15 /* Build configuration list for PBXNativeTarget "daily timerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A2DAA02DA4FC20003A4F15 /* Debug */,
+				58A2DAA12DA4FC20003A4F15 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 58A2DA6F2DA4FC1C003A4F15 /* Project object */;
+}
