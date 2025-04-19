@@ -1,10 +1,17 @@
 import SwiftUI
 
 struct User: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     var name: String
     var isSelected: Bool
     var isAdmin: Bool
+    
+    init(id: UUID = UUID(), name: String, isSelected: Bool, isAdmin: Bool) {
+            self.id = id
+            self.name = name
+            self.isSelected = isSelected
+            self.isAdmin = isAdmin
+        }
 }
 
 class UserManager: ObservableObject {
@@ -18,11 +25,6 @@ class UserManager: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: "userList"),
            let savedUsers = try? JSONDecoder().decode([User].self, from: data) {
             users = savedUsers
-            users = savedUsers.map { user in
-                           var updatedUser = user
-                           updatedUser.isSelected = true
-                           return updatedUser
-                       }
         } else {
             users = [
                 User(name: "Alice", isSelected: true, isAdmin: false),
@@ -40,8 +42,9 @@ class UserManager: ObservableObject {
 }
 
 struct ContentView: View {
+    @AppStorage("timerSeconds") private var timeout: Int = 90
+
     @StateObject var userManager = UserManager()
-    @State private var timeout: Int = 90
     @State private var currentUser: User? = nil
     @State private var timeRemaining: Int = 0
     @State private var isTimerRunning: Bool = false
@@ -60,6 +63,9 @@ struct ContentView: View {
                         HStack {
                             Toggle(isOn: $user.isSelected) {
                                 Text(user.name)
+                            }
+                            .onChange(of: user.isSelected) {
+                                userManager.saveUsers()
                             }
                         }
                     }
