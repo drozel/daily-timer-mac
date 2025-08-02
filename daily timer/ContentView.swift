@@ -51,35 +51,37 @@ struct ContentView: View {
     @State private var timer: Timer?
 
     var body: some View {
-        VStack {
-            switch mode {
-            case .main:
-                MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
-                    mode = .editUsers
-                })
-                .onAppear {
-                    restoreMainWindowSize()
-                }
-            case .timer:
-                if let currentUser = currentUser {
-                    TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
-                } else if showEnd {
-                    SessionEndView()
-                }
-            case .editUsers:
-                VStack {
-                    EditUserView(userManager: userManager)
-                    
-                    BackButton {
-                        userManager.saveUsers()
-                        mode = .main
+        FirstMouseAcceptingView {
+            VStack {
+                switch mode {
+                case .main:
+                    MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
+                        mode = .editUsers
+                    })
+                    .onAppear {
                         restoreMainWindowSize()
                     }
+                case .timer:
+                    if let currentUser = currentUser {
+                        TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
+                    } else if showEnd {
+                        SessionEndView()
+                    }
+                case .editUsers:
+                    VStack {
+                        EditUserView(userManager: userManager)
+                        
+                        BackButton {
+                            userManager.saveUsers()
+                            mode = .main
+                            restoreMainWindowSize()
+                        }
+                    }
+                    .padding()
                 }
-                .padding()
             }
+            .padding()
         }
-        .padding()
     }
 
     func startSession() {

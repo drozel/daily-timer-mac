@@ -35,3 +35,28 @@ struct AnimatedButton<Content: View>: View {
             )
     }
 }
+
+// A wrapper view that accepts first mouse clicks on macOS
+struct FirstMouseAcceptingView<Content: View>: NSViewRepresentable {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    func makeNSView(context: Context) -> NSHostingView<Content> {
+        let hostingView = FirstMouseAcceptingHostingView(rootView: content)
+        return hostingView
+    }
+    
+    func updateNSView(_ nsView: NSHostingView<Content>, context: Context) {
+        nsView.rootView = content
+    }
+}
+
+// Custom NSHostingView that accepts first mouse
+class FirstMouseAcceptingHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+}
