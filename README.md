@@ -15,7 +15,7 @@ Designed to run daily standups efficiently by timing each team member.
 - ✅ Editor mode: allows to define the team members, the list is persisted between sessions
 - ✅ Idle mode: choose who is present today, configure the counter value and start the daily as soon as the team is ready
 - ✅ Run mode: picks the next random member from the list and counts down his time. Click NEXT to choose the next team member
-- ✅ Admin members: members who always reports at the end. Helpful for team leads or product owners
+- ✅ Finalizer members: members who always reports at the end. Helpful for team leads or product owners
 
 ---
 
@@ -25,7 +25,7 @@ Designed to run daily standups efficiently by timing each team member.
 2. Select users for today’s session.
 3. Set timeout (default: 90 seconds).
 4. Press **START** to begin.
-5. Each person is selected randomly (admins appear at the end).
+5. Each person is selected randomly (finalizers appear at the end).
 6. A countdown shows the remaining time; turns end manually by pressing **Next**.
 
 ---
