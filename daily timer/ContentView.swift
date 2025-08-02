@@ -43,6 +43,8 @@ class UserManager: ObservableObject {
 
 struct ContentView: View {
     @AppStorage("timerSeconds") private var timeout: Int = 90
+    @AppStorage("mainWindowWidth") private var savedWindowWidth: Double = 450
+    @AppStorage("mainWindowHeight") private var savedWindowHeight: Double = 600
 
     @StateObject var userManager = UserManager()
     @State private var currentUser: User? = nil
@@ -55,79 +57,96 @@ struct ContentView: View {
     var body: some View {
         VStack {
             if mode == 1 {
-                Text("Daily time!")
-                    .font(.title)
-                
-                List {
-                    ForEach($userManager.users) { $user in
-                        HStack {
-                            Toggle(isOn: $user.isSelected) {
-                                Text(user.name)
-                            }
-                            .onChange(of: user.isSelected) {
-                                userManager.saveUsers()
-                            }
-                        }
-                    }
-                }
-                
-                HStack {
-                    Text("Timeout (seconds):")
-                    TextField("90", value: $timeout, formatter: NumberFormatter())
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(width: 60)
-                }
-                
-               Text("Teammates today: \(userManager.users.filter { $0.isSelected }.count)")
-                   .font(.subheadline)
-                   .padding(.top, 10)
-               Text("Total time: \(calculateTotalTime()) minutes")
-                   .font(.subheadline)
-                
-                HStack {
-                    Button("START") {
-                        startSession()
-                    }
-                    Button("Edit Users") {
-                        mode = 3
-                    }
-                }
-                .padding()
+                MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
+                    mode = 3
+                })
                 .onAppear {
-                    resizeWindowToFitUsers(count: userManager.users.count)
+                    restoreMainWindowSize()
                 }
             }
             else if mode == 2 {
                 if let currentUser = currentUser {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
+                        // User name with refined typography
                         Text(currentUser.name)
-                            .font(.system(size: 30, weight: .bold))
+                            .font(.system(size: 24, weight: .semibold, design: .rounded))
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
                         
-                        if timeRemaining == 0 {
-                           Image(systemName: "flame.fill")
-                               .resizable()
-                               .frame(width: 38, height: 38)
-                               .foregroundColor(.red)
-                       } else {
-                           Text("\(timeRemaining)")
-                               .font(.system(size: 38))
-                               .foregroundColor(timeRemaining < 10 ? .red : .green)
-                       }
-                                                
-                        Button(action: nextUser) {
-                            Text("Next")
+                        // Timer display with modern styling
+                        ZStack {
+                            if timeRemaining == 0 {
+                                // Time's up indicator with fire emoji in circle
+                                Circle()
+                                    .fill(.red.opacity(0.1))
+                                    .frame(width: 80, height: 80)
+                                    .overlay(
+                                        Text("🔥")
+                                            .font(.system(size: 32))
+                                            .scaleEffect(1.0)
+                                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: timeRemaining)
+                                    )
+                            } else {
+                                // Timer with circular progress background
+                                Circle()
+                                    .fill(.gray.opacity(0.1))
+                                    .frame(width: 80, height: 80)
+                                    .overlay(
+                                        Text("\(timeRemaining)")
+                                            .font(.system(size: 28, weight: .medium, design: .rounded))
+                                            .foregroundColor(timeRemaining <= 10 ? .red : .primary)
+                                            .monospacedDigit()
+                                    )
+                            }
                         }
-                        .padding()
+                        
+                        // Next button with modern Apple styling
+                        Button(action: nextUser) {
+                            HStack(spacing: 6) {
+                                Text("Next")
+                                    .font(.system(size: 16, weight: .medium))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(.blue)
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .scaleEffect(1.0)
+                        .animation(.easeInOut(duration: 0.1), value: timeRemaining)
                     }
-                    .padding()
+                    .padding(20)
                 } else if showEnd {
-                    Text("END")
-                        .font(.largeTitle)
-                        .padding()
-                    Button("EXIT") {
-                        exit(0)
+                    VStack(spacing: 16) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.green)
+                            .symbolEffect(.bounce, value: showEnd)
+                        
+                        Text("Done!")
+                            .font(.system(size: 20, weight: .semibold, design: .rounded))
+                            .foregroundColor(.primary)
+                        
+                        Button("Finish") {
+                            exit(0)
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 22)
+                                .fill(.green)
+                        )
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .padding()
+                    .padding(20)
                 }
             }
 
@@ -136,6 +155,7 @@ struct ContentView: View {
                 Button("Back") {
                     userManager.saveUsers()
                     mode = 1
+                    restoreMainWindowSize()
                 }
                 .padding()
             }
@@ -150,10 +170,13 @@ struct ContentView: View {
         
         guard !selectedUsers.isEmpty else { return }
 
+        // Save current main window size before switching to timer
+        saveMainWindowSize()
+        
         userManager.users = nonAdminUsers + adminUsers
         currentUser = userManager.users.first
         timeRemaining = timeout
-        resizeWindow(to: NSSize(width: 180, height: 220))
+        resizeTimerWindow()
         mode = 2
         startTimer()
     }
@@ -168,7 +191,6 @@ struct ContentView: View {
                 timeRemaining -= 1
             } else {
                 stopTimer()
-                // Display the bomb icon when time is up
                 isTimerRunning = false
             }
         }
@@ -193,37 +215,41 @@ struct ContentView: View {
         }
     }
     
-    func resizeWindow(to size: NSSize) {
+    func resizeTimerWindow() {
         DispatchQueue.main.async {
             if let window = NSApplication.shared.windows.first {
-                window.setContentSize(size)
-                window.minSize = size
-                window.maxSize = size
+                window.setContentSize(NSSize(width: 200, height: 240))
+                window.minSize = NSSize(width: 200, height: 240)
+                window.maxSize = NSSize(width: 200, height: 240)
+                // Make timer window float on top
+                window.level = .floating
             }
         }
     }
     
-    func resizeWindowToFitUsers(count: Int) {
-        let rowHeight: CGFloat = 30   // Approximate height per row
-        let baseHeight: CGFloat = 300 // Header + other UI elements
-        let height = baseHeight + CGFloat(count) * rowHeight
-        let clampedHeight = max(400, min(height, 800)) // Optional min/max cap
-
-        let size = NSSize(width: 400, height: clampedHeight)
-
-        DispatchQueue.main.async {
-            if let window = NSApplication.shared.windows.first {
-                window.setContentSize(size)
-                window.minSize = size
-                window.maxSize = size
-            }
+    func saveMainWindowSize() {
+        if let window = NSApplication.shared.windows.first {
+            let currentSize = window.frame.size
+            savedWindowWidth = currentSize.width
+            savedWindowHeight = currentSize.height
         }
     }
     
-    func calculateTotalTime() -> Int {
-        let selectedCount = userManager.users.filter { $0.isSelected }.count
-        let totalSeconds = selectedCount * timeout
-        return Int(ceil(Double(totalSeconds) / 60.0)) // Rounded up to minutes
+    func restoreMainWindowSize() {
+        DispatchQueue.main.async {
+            if let window = NSApplication.shared.windows.first {
+                // Remove size constraints
+                window.minSize = NSSize(width: 300, height: 200)
+                window.maxSize = NSSize(width: 10000, height: 10000)
+                
+                // Reset window level to normal (not floating on top)
+                window.level = .normal
+                
+                // Restore saved size
+                let restoredSize = NSSize(width: self.savedWindowWidth, height: self.savedWindowHeight)
+                window.setContentSize(restoredSize)
+            }
+        }
     }
 }
 
@@ -298,5 +324,229 @@ struct EditUserView: View {
     func moveUser(from source: IndexSet, to destination: Int) {
         userManager.users.move(fromOffsets: source, toOffset: destination)
         userManager.saveUsers()
+    }
+}
+
+struct MainView: View {
+    @ObservedObject var userManager: UserManager
+    @Binding var timeout: Int
+    let onStartSession: () -> Void
+    let onEditUsers: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            HeaderView()
+            UserListView(userManager: userManager)
+            TimerSettingsView(timeout: $timeout)
+            SessionInfoView(userManager: userManager, timeout: timeout)
+            ActionButtonsView(
+                userManager: userManager,
+                onStartSession: onStartSession,
+                onEditUsers: onEditUsers
+            )
+        }
+        .padding(24)
+    }
+}
+
+struct HeaderView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("Daily Standup Timer")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+            
+            Text("Select your team and start timing")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.secondary)
+        }
+        .padding(.top, 16)
+    }
+}
+
+struct UserListView: View {
+    @ObservedObject var userManager: UserManager
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Teammates")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach($userManager.users) { $user in
+                        UserRowView(user: $user, userManager: userManager)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+}
+
+struct UserRowView: View {
+    @Binding var user: User
+    let userManager: UserManager
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: {
+                user.isSelected.toggle()
+                userManager.saveUsers()
+            }) {
+                Image(systemName: user.isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(user.isSelected ? .blue : .secondary)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Text(user.name)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.primary)
+            
+            Spacer()
+            
+            if user.isAdmin {
+                Text("ADMIN")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(.orange.opacity(0.1))
+                    )
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(user.isSelected ? .blue.opacity(0.05) : .gray.opacity(0.1))
+        )
+    }
+}
+
+struct TimerSettingsView: View {
+    @Binding var timeout: Int
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Timer Settings")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            
+            HStack(spacing: 12) {
+                Text("Duration:")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                
+                TextField("90", value: $timeout, formatter: NumberFormatter())
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 80)
+                
+                Text("seconds")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.gray.opacity(0.1))
+            )
+        }
+    }
+}
+
+struct SessionInfoView: View {
+    let userManager: UserManager
+    let timeout: Int
+    
+    private func calculateTotalTime() -> Int {
+        let selectedCount = userManager.users.filter { $0.isSelected }.count
+        let totalSeconds = selectedCount * timeout
+        return Int(ceil(Double(totalSeconds) / 60.0))
+    }
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(.blue)
+                    .frame(width: 16)
+                Text("Teammates today: \(userManager.users.filter { $0.isSelected }.count)")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            
+            HStack {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(.green)
+                    .frame(width: 16)
+                Text("Total time: \(calculateTotalTime()) minutes")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.gray.opacity(0.1))
+        )
+    }
+}
+
+struct ActionButtonsView: View {
+    let userManager: UserManager
+    let onStartSession: () -> Void
+    let onEditUsers: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Button("Edit Users") {
+                onEditUsers()
+            }
+            .font(.system(size: 16, weight: .medium))
+            .foregroundColor(.blue)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 22)
+                    .stroke(.blue, lineWidth: 1.5)
+            )
+            .buttonStyle(PlainButtonStyle())
+            
+            Button("START") {
+                onStartSession()
+            }
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(.blue)
+            )
+            .buttonStyle(PlainButtonStyle())
+            .disabled(userManager.users.filter { $0.isSelected }.isEmpty)
+            .opacity(userManager.users.filter { $0.isSelected }.isEmpty ? 0.6 : 1.0)
+        }
+        .padding(.bottom, 8)
     }
 }
