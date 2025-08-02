@@ -229,6 +229,7 @@ struct ContentView: View {
 
 struct EditUserView: View {
     @ObservedObject var userManager: UserManager
+    @FocusState private var focusedField: UUID?
 
     var body: some View {
         VStack {
@@ -238,42 +239,55 @@ struct EditUserView: View {
             }
             .padding()
 
-            List {
-                ForEach($userManager.users) { $user in
-                    HStack {
-                        TextField("Name", text: $user.name)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Toggle("Admin", isOn: $user.isAdmin)
+            ScrollViewReader { proxy in
+                List {
+                    ForEach($userManager.users) { $user in
+                        HStack {
+                            TextField("Name", text: $user.name)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .focused($focusedField, equals: user.id)
+                            Toggle("Admin", isOn: $user.isAdmin)
 
-                        Spacer()
+                            Spacer()
 
-                        Button(action: {
-                            if let index = userManager.users.firstIndex(where: { $0.id == user.id }) {
-                                deleteUser(at: IndexSet(integer: index))
+                            Button(action: {
+                                if let index = userManager.users.firstIndex(where: { $0.id == user.id }) {
+                                    deleteUser(at: IndexSet(integer: index))
+                                }
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
                             }
-                        }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .id(user.id)
                     }
-                    .padding(.vertical, 5)
+                    .onDelete(perform: deleteUser)
+                    .onMove(perform: moveUser)
                 }
-                .onDelete(perform: deleteUser)
-                .onMove(perform: moveUser)
-            }
 
-            Button("Add User") {
-                addUser()
+                Button("Add User") {
+                    addUser(scrollProxy: proxy)
+                }
+                .padding()
             }
             .padding()
         }
         .padding()
     }
 
-    func addUser() {
-        userManager.users.append(User(name: "New User", isSelected: true, isAdmin: false))
+    func addUser(scrollProxy: ScrollViewProxy) {
+        let newUser = User(name: "New User", isSelected: true, isAdmin: false)
+        userManager.users.append(newUser)
         userManager.saveUsers()
+        
+        // Focus on the newly added user's text field and scroll to it
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            focusedField = newUser.id
+            withAnimation(.easeInOut(duration: 0.5)) {
+                scrollProxy.scrollTo(newUser.id, anchor: UnitPoint.bottom)
+            }
+        }
     }
  
     func deleteUser(at offsets: IndexSet) {
