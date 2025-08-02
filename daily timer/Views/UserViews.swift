@@ -29,41 +29,40 @@ struct UserRowView: View {
     let userManager: UserManager
     
     var body: some View {
-        HStack(spacing: 12) {
-            Button(action: {
-                user.isSelected.toggle()
-                userManager.saveUsers()
-            }) {
+        AnimatedButton(action: {
+            user.isSelected.toggle()
+            userManager.saveUsers()
+        }) {
+            HStack(spacing: 12) {
                 Image(systemName: user.isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(user.isSelected ? .blue : .secondary)
-            }
-            .buttonStyle(PlainButtonStyle())
-            
-            Text(user.name)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.primary)
-            
-            Spacer()
+                
+                Text(user.name)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                
+                Spacer()
 
-            if user.isFinalizer {
-                Text("FINALIZER")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.orange)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(.orange.opacity(0.1))
-                    )
+                if user.isFinalizer {
+                    Text("FINALIZER")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(.orange.opacity(0.1))
+                        )
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(user.isSelected ? .blue.opacity(0.05) : .gray.opacity(0.1))
+            )
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(user.isSelected ? .blue.opacity(0.05) : .gray.opacity(0.1))
-        )
     }
 }
 

@@ -39,7 +39,7 @@ struct TimerSettingsView: View {
 }
 
 struct SessionInfoView: View {
-    let userManager: UserManager
+    @ObservedObject var userManager: UserManager
     let timeout: Int
     
     private func calculateTotalTime() -> Int {
