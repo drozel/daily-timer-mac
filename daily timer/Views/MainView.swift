@@ -8,7 +8,6 @@ struct MainView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            HeaderView()
             UserListView(userManager: userManager)
             TimerSettingsView(timeout: $timeout)
             SessionInfoView(userManager: userManager, timeout: timeout)
@@ -19,21 +18,6 @@ struct MainView: View {
             )
         }
         .padding(24)
-    }
-}
-
-struct HeaderView: View {
-    var body: some View {
-        VStack(spacing: 8) {
-            Text("Daily Standup Timer")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
-            
-            Text("Select your team and start timing")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.secondary)
-        }
-        .padding(.top, 16)
     }
 }
 
