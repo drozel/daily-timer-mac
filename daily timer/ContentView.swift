@@ -22,24 +22,16 @@ struct BackButton: View {
 
 struct ContentView: View {
     // MARK: - Types
-    private enum AppMode: Int {
+    enum AppMode: Int {
         case main = 1
         case timer = 2
         case editUsers = 3
     }
     
-    // MARK: - Constants
-    private enum WindowSize {
-        static let timer = NSSize(width: 200, height: 240)
-        static let mainDefault = NSSize(width: 450, height: 600)
-        static let mainMinimum = NSSize(width: 300, height: 200)
-        static let mainMaximum = NSSize(width: 10000, height: 10000)
-    }
-    
     // MARK: - App Storage
     @AppStorage("timerSeconds") private var timeout: Int = 90
-    @AppStorage("mainWindowWidth") private var savedWindowWidth: Double = WindowSize.mainDefault.width
-    @AppStorage("mainWindowHeight") private var savedWindowHeight: Double = WindowSize.mainDefault.height
+    @AppStorage("mainWindowWidth") private var savedMainWidth: Double = 450
+    @AppStorage("mainWindowHeight") private var savedMainHeight: Double = 600
 
     // MARK: - State
     @StateObject var userManager = UserManager()
@@ -47,31 +39,36 @@ struct ContentView: View {
     @State private var timeRemaining: Int = 0
     @State private var isTimerRunning: Bool = false
     @State private var showEnd: Bool = false
-    @State private var mode: AppMode = .main
+    @State private var mode: AppMode = .main {
+        didSet {
+            configureWindowForMode(mode)
+        }
+    }
     @State private var timer: Timer?
 
     var body: some View {
         FirstMouseAcceptingView {
-            VStack {
+            Group {
                 switch mode {
                 case .main:
                     MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
-                        removeWindowResizeObserver()
                         mode = .editUsers
                     })
-                .onAppear {
-                    restoreMainWindowSize()
-                    setupWindowResizeObserver()
-                }
-                .onDisappear {
-                    removeWindowResizeObserver()
-                }
-                case .timer:
-                    if let currentUser = currentUser {
-                        TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
-                    } else if showEnd {
-                        SessionEndView()
+                    .onAppear {
+                        if mode == .main {
+                            configureWindowForMode(.main)
+                        }
                     }
+                    
+                case .timer:
+                    VStack {
+                        if let currentUser = currentUser {
+                            TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
+                        } else if showEnd {
+                            SessionEndView(onFinish: finishSession)
+                        }
+                    }
+                    
                 case .editUsers:
                     VStack {
                         EditUserView(userManager: userManager)
@@ -79,13 +76,12 @@ struct ContentView: View {
                         BackButton {
                             userManager.saveUsers()
                             mode = .main
-                            restoreMainWindowSize()
                         }
                     }
                     .padding()
                 }
             }
-            .padding()
+            .padding(mode == .timer ? 0 : 24)
         }
     }
 
@@ -96,17 +92,43 @@ struct ContentView: View {
 
         guard !selectedUsers.isEmpty else { return }
 
-        // Save current main window size before switching to timer
-        saveMainWindowSize()
-        // Remove resize observer when leaving main mode
-        removeWindowResizeObserver()
+        // Save current window size before switching to timer
+        saveCurrentWindowSize()
 
         userManager.users = usualUsers + finalizerUsers
         currentUser = userManager.users.first
         timeRemaining = timeout
-        resizeTimerWindow()
         mode = .timer
         startTimer()
+    }
+    
+    private func saveCurrentWindowSize() {
+        guard mode == .main else { return }
+        
+        if let window = NSApp.keyWindow {
+            savedMainWidth = window.frame.width
+            savedMainHeight = window.frame.height
+        }
+    }
+    
+    private func configureWindowForMode(_ newMode: AppMode) {
+        DispatchQueue.main.async {
+            guard let window = NSApp.keyWindow else { return }
+            
+            switch newMode {
+            case .main, .editUsers:
+                window.level = .normal
+                window.setContentSize(NSSize(width: self.savedMainWidth, height: self.savedMainHeight))
+                window.minSize = NSSize(width: 300, height: 400)
+                window.maxSize = NSSize(width: 2000, height: 2000)
+                
+            case .timer:
+                window.level = .floating
+                window.setContentSize(NSSize(width: 200, height: 240))
+                window.minSize = NSSize(width: 200, height: 240)
+                window.maxSize = NSSize(width: 200, height: 240)
+            }
+        }
     }
 
     func startTimer() {
@@ -143,112 +165,10 @@ struct ContentView: View {
         }
     }
     
-    func resizeTimerWindow() {
-        DispatchQueue.main.async {
-            if let window = NSApplication.shared.windows.first {
-                window.setContentSize(NSSize(width: 200, height: 240))
-                window.minSize = NSSize(width: 200, height: 240)
-                window.maxSize = NSSize(width: 200, height: 240)
-                // Make timer window float on top
-                window.level = .floating
-            }
-        }
-    }
-    
-    func saveMainWindowSize() {
-        // Only save window size when in main mode to avoid saving timer window size
-        guard mode == .main else { return }
-        
-        if let window = NSApplication.shared.windows.first {
-            let currentSize = window.frame.size
-            // Only save if the size is reasonable for main window (not timer size)
-            if currentSize.width >= WindowSize.mainMinimum.width && currentSize.height >= WindowSize.mainMinimum.height {
-                savedWindowWidth = currentSize.width
-                savedWindowHeight = currentSize.height
-            }
-        }
-    }
-    
-    func restoreMainWindowSize() {
-        DispatchQueue.main.async {
-            if let window = NSApplication.shared.windows.first {
-                // Remove size constraints
-                window.minSize = NSSize(width: 300, height: 200)
-                window.maxSize = NSSize(width: 10000, height: 10000)
-                
-                // Reset window level to normal (not floating on top)
-                window.level = .normal
-                
-                // Restore saved size
-                let restoredSize = NSSize(width: self.savedWindowWidth, height: self.savedWindowHeight)
-                window.setContentSize(restoredSize)
-            }
-        }
-    }
-    
-    // MARK: - Window Resize Observer
-    @State private var windowResizeObserver: NSObjectProtocol?
-    @State private var windowMoveObserver: NSObjectProtocol?
-    @State private var saveWorkItem: DispatchWorkItem?
-    @State private var isWindowMoving = false
-    @State private var lastKnownScreen: NSScreen?
-    
-    func setupWindowResizeObserver() {
-        removeWindowResizeObserver() // Remove any existing observer
-        
-        DispatchQueue.main.async {
-            if let window = NSApplication.shared.windows.first {
-                // Store the current screen
-                self.lastKnownScreen = window.screen
-                
-                // Observer for window moves (which can cause automatic resizing)
-                self.windowMoveObserver = NotificationCenter.default.addObserver(
-                    forName: NSWindow.didMoveNotification,
-                    object: window,
-                    queue: .main
-                ) { _ in
-                    // Check if the window moved to a different screen
-                    if let newScreen = window.screen, newScreen != self.lastKnownScreen {
-                        self.isWindowMoving = true
-                        self.lastKnownScreen = newScreen
-                        
-                        // Reset the moving flag after a delay to allow for automatic resizing
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            self.isWindowMoving = false
-                        }
-                    }
-                }
-                
-                // Observer for window resizes
-                self.windowResizeObserver = NotificationCenter.default.addObserver(
-                    forName: NSWindow.didResizeNotification,
-                    object: window,
-                    queue: .main
-                ) { _ in
-                    // Only save when in main mode, not moving between screens, and after a delay
-                    if self.mode == .main && !self.isWindowMoving {
-                        self.saveWorkItem?.cancel()
-                        self.saveWorkItem = DispatchWorkItem {
-                            self.saveMainWindowSize()
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: self.saveWorkItem!)
-                    }
-                }
-            }
-        }
-    }
-    
-    func removeWindowResizeObserver() {
-        if let observer = windowResizeObserver {
-            NotificationCenter.default.removeObserver(observer)
-            windowResizeObserver = nil
-        }
-        if let observer = windowMoveObserver {
-            NotificationCenter.default.removeObserver(observer)
-            windowMoveObserver = nil
-        }
-        saveWorkItem?.cancel()
-        saveWorkItem = nil
-        isWindowMoving = false
+    func finishSession() {
+        mode = .main
+        showEnd = false
+        currentUser = nil
+        timer?.invalidate()
     }
 }

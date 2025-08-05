@@ -60,6 +60,8 @@ struct TimerView: View {
 }
 
 struct SessionEndView: View {
+    let onFinish: () -> Void
+    
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
@@ -71,7 +73,7 @@ struct SessionEndView: View {
                 .font(.system(size: 20, weight: .semibold, design: .rounded))
                 .foregroundColor(.primary)
             
-            AnimatedButton(action: { exit(0) }) {
+            AnimatedButton(action: onFinish) {
                 HStack {
                     Text("Finish")
                         .font(.system(size: 16, weight: .medium))
