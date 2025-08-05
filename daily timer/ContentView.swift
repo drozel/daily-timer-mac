@@ -56,11 +56,16 @@ struct ContentView: View {
                 switch mode {
                 case .main:
                     MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
+                        removeWindowResizeObserver()
                         mode = .editUsers
                     })
-                    .onAppear {
-                        restoreMainWindowSize()
-                    }
+                .onAppear {
+                    restoreMainWindowSize()
+                    setupWindowResizeObserver()
+                }
+                .onDisappear {
+                    removeWindowResizeObserver()
+                }
                 case .timer:
                     if let currentUser = currentUser {
                         TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
@@ -93,6 +98,8 @@ struct ContentView: View {
 
         // Save current main window size before switching to timer
         saveMainWindowSize()
+        // Remove resize observer when leaving main mode
+        removeWindowResizeObserver()
 
         userManager.users = usualUsers + finalizerUsers
         currentUser = userManager.users.first
@@ -149,10 +156,16 @@ struct ContentView: View {
     }
     
     func saveMainWindowSize() {
+        // Only save window size when in main mode to avoid saving timer window size
+        guard mode == .main else { return }
+        
         if let window = NSApplication.shared.windows.first {
             let currentSize = window.frame.size
-            savedWindowWidth = currentSize.width
-            savedWindowHeight = currentSize.height
+            // Only save if the size is reasonable for main window (not timer size)
+            if currentSize.width >= WindowSize.mainMinimum.width && currentSize.height >= WindowSize.mainMinimum.height {
+                savedWindowWidth = currentSize.width
+                savedWindowHeight = currentSize.height
+            }
         }
     }
     
@@ -171,5 +184,71 @@ struct ContentView: View {
                 window.setContentSize(restoredSize)
             }
         }
+    }
+    
+    // MARK: - Window Resize Observer
+    @State private var windowResizeObserver: NSObjectProtocol?
+    @State private var windowMoveObserver: NSObjectProtocol?
+    @State private var saveWorkItem: DispatchWorkItem?
+    @State private var isWindowMoving = false
+    @State private var lastKnownScreen: NSScreen?
+    
+    func setupWindowResizeObserver() {
+        removeWindowResizeObserver() // Remove any existing observer
+        
+        DispatchQueue.main.async {
+            if let window = NSApplication.shared.windows.first {
+                // Store the current screen
+                self.lastKnownScreen = window.screen
+                
+                // Observer for window moves (which can cause automatic resizing)
+                self.windowMoveObserver = NotificationCenter.default.addObserver(
+                    forName: NSWindow.didMoveNotification,
+                    object: window,
+                    queue: .main
+                ) { _ in
+                    // Check if the window moved to a different screen
+                    if let newScreen = window.screen, newScreen != self.lastKnownScreen {
+                        self.isWindowMoving = true
+                        self.lastKnownScreen = newScreen
+                        
+                        // Reset the moving flag after a delay to allow for automatic resizing
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.isWindowMoving = false
+                        }
+                    }
+                }
+                
+                // Observer for window resizes
+                self.windowResizeObserver = NotificationCenter.default.addObserver(
+                    forName: NSWindow.didResizeNotification,
+                    object: window,
+                    queue: .main
+                ) { _ in
+                    // Only save when in main mode, not moving between screens, and after a delay
+                    if self.mode == .main && !self.isWindowMoving {
+                        self.saveWorkItem?.cancel()
+                        self.saveWorkItem = DispatchWorkItem {
+                            self.saveMainWindowSize()
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: self.saveWorkItem!)
+                    }
+                }
+            }
+        }
+    }
+    
+    func removeWindowResizeObserver() {
+        if let observer = windowResizeObserver {
+            NotificationCenter.default.removeObserver(observer)
+            windowResizeObserver = nil
+        }
+        if let observer = windowMoveObserver {
+            NotificationCenter.default.removeObserver(observer)
+            windowMoveObserver = nil
+        }
+        saveWorkItem?.cancel()
+        saveWorkItem = nil
+        isWindowMoving = false
     }
 }
