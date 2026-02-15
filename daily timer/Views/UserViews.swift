@@ -13,12 +13,12 @@ struct UserListView: View {
             }
             
             ScrollView {
-                LazyVStack(spacing: 8) {
+                LazyVStack(spacing: 5) {
                     ForEach($userManager.users) { $user in
                         UserRowView(user: $user, userManager: userManager)
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 2)
             }
         }
     }
@@ -33,22 +33,22 @@ struct UserRowView: View {
             user.isSelected.toggle()
             userManager.saveUsers()
         }) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Image(systemName: user.isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundColor(user.isSelected ? .blue : .secondary)
                 
                 Text(user.name)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.primary)
                 
                 Spacer()
 
                 if user.isFinalizer {
                     Text("FINALIZER")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 9, weight: .bold))
                         .foregroundColor(.orange)
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(
                             RoundedRectangle(cornerRadius: 4)
@@ -56,8 +56,8 @@ struct UserRowView: View {
                         )
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(user.isSelected ? .blue.opacity(0.05) : .gray.opacity(0.1))

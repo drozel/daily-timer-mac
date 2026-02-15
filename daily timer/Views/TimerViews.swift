@@ -21,39 +21,43 @@ struct TimerView: View {
     var body: some View {
         LiquidGlassShell {
             VStack(spacing: 16) {
-                Text(currentUser.name)
-                    .font(.system(size: 24, weight: .semibold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                
-                ZStack {
-                    if timeRemaining == 0 {
-                        Circle()
-                            .fill(.red.opacity(0.12))
-                            .frame(width: 84, height: 84)
-                            .overlay(
-                                Text("🔥")
-                                    .font(.system(size: 32))
-                                    .scaleEffect(1.0)
-                                    .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: timeRemaining)
-                            )
-                    } else {
-                        Circle()
-                            .fill(.thinMaterial)
-                            .frame(width: 84, height: 84)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
-                            )
-                            .overlay(
-                                Text("\(timeRemaining)")
-                                    .font(.system(size: 28, weight: .medium, design: .rounded))
-                                    .foregroundColor(timeRemaining <= 10 ? .red : .primary)
-                                    .monospacedDigit()
-                            )
+                VStack(spacing: 16) {
+                    Text(currentUser.name)
+                        .font(.system(size: 24, weight: .semibold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                    
+                    ZStack {
+                        if timeRemaining == 0 {
+                            Circle()
+                                .fill(.red.opacity(0.12))
+                                .frame(width: 84, height: 84)
+                                .overlay(
+                                    Text("🔥")
+                                        .font(.system(size: 32))
+                                        .scaleEffect(1.0)
+                                        .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: timeRemaining)
+                                )
+                        } else {
+                            Circle()
+                                .fill(.thinMaterial)
+                                .frame(width: 84, height: 84)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+                                )
+                                .overlay(
+                                    Text("\(timeRemaining)")
+                                        .font(.system(size: 28, weight: .medium, design: .rounded))
+                                        .foregroundColor(timeRemaining <= 10 ? .red : .primary)
+                                        .monospacedDigit()
+                                )
+                        }
                     }
                 }
+                .frame(height: 152, alignment: .top)
+                .padding(.top, 10)
                 
                 AnimatedButton(action: onNextUser) {
                     HStack(spacing: 6) {
@@ -81,14 +85,29 @@ struct SessionEndView: View {
     var body: some View {
         LiquidGlassShell {
             VStack(spacing: 16) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 48))
-                    .foregroundColor(.green)
-                    .symbolEffect(.bounce, value: true)
-                
-                Text("Done!")
-                    .font(.system(size: 20, weight: .semibold, design: .rounded))
-                    .foregroundColor(.primary)
+                VStack(spacing: 16) {
+                    Text("Done!")
+                        .font(.system(size: 24, weight: .semibold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                    
+                    Circle()
+                        .fill(.thinMaterial)
+                        .frame(width: 84, height: 84)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(.white.opacity(0.25), lineWidth: 1)
+                        )
+                        .overlay(
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 34, weight: .semibold))
+                                .foregroundColor(.green)
+                                .symbolEffect(.bounce, value: true)
+                        )
+                }
+                .frame(height: 152, alignment: .top)
+                .padding(.top, 10)
                 
                 AnimatedButton(action: onFinish) {
                     HStack {

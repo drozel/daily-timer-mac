@@ -30,10 +30,12 @@ struct ContentView: View {
     
     // MARK: - App Storage
     @AppStorage("timerSeconds") private var timeout: Int = 90
-    @AppStorage("mainWindowWidth") private var savedMainWidth: Double = 450
-    @AppStorage("mainWindowHeight") private var savedMainHeight: Double = 600
     private let minTimeout = 10
     private let maxTimeout = 600
+    private let preferredMainWidth: Double = 420
+    private let preferredMainHeight: Double = 540
+    private let mainMinimumWidth: Double = 340
+    private let mainMinimumHeight: Double = 430
 
     // MARK: - State
     @StateObject var userManager = UserManager()
@@ -58,28 +60,9 @@ struct ContentView: View {
                     MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
                         mode = .editUsers
                     })
-                    .onAppear {
-                        if mode == .main {
-                            configureWindowForMode(.main)
-                        }
-                    }
                     
                 case .timer:
-                    ZStack {
-                        VisualEffectGlassView(material: .underWindowBackground, blendingMode: .behindWindow, opacity: 0.7)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [.white.opacity(0.26), .white.opacity(0.08)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1
-                                    )
-                            )
-                            .shadow(color: .black.opacity(0.16), radius: 14, x: 0, y: 8)
-
+                    LiquidGlassContainer(cornerRadius: 28) {
                         VStack {
                             if let currentUser = currentUser {
                                 TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
@@ -87,8 +70,9 @@ struct ContentView: View {
                                 SessionEndView(onFinish: finishSession)
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .background(Color.clear)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                 case .editUsers:
                     VStack {
@@ -114,14 +98,16 @@ struct ContentView: View {
                 timeout = sanitized
             }
         }
+        .onChange(of: userManager.users.count) { _ in
+            if mode == .main {
+                configureWindowForMode(.main)
+            }
+        }
     }
 
     func startSession() {
         let plannedUsers = userManager.makeSessionUsers()
         guard !plannedUsers.isEmpty else { return }
-
-        // Save current window size before switching to timer
-        saveCurrentWindowSize()
 
         showEnd = false
         sessionUsers = plannedUsers
@@ -129,15 +115,6 @@ struct ContentView: View {
         timeRemaining = clampedTimeout(timeout)
         mode = .timer
         startTimer()
-    }
-    
-    private func saveCurrentWindowSize() {
-        guard mode == .main else { return }
-        
-        if let window = resolveWindow() {
-            savedMainWidth = window.frame.width
-            savedMainHeight = window.frame.height
-        }
     }
     
     private func resolveWindow() -> NSWindow? {
@@ -152,6 +129,31 @@ struct ContentView: View {
     private func clampedTimeout(_ value: Int) -> Int {
         min(max(value, minTimeout), maxTimeout)
     }
+    
+    private func clampedMainWindowSize(userCount: Int) -> NSSize {
+        let minimum = NSSize(width: mainMinimumWidth, height: mainMinimumHeight)
+
+        // Approximate the main view height required to show all users without scroll.
+        let rowHeight = 40.0
+        let rowSpacing = 5.0
+        let baseHeightWithoutRows = 380.0
+        let totalRowsHeight = Double(userCount) * rowHeight + Double(max(userCount - 1, 0)) * rowSpacing
+        let desiredHeight = max(preferredMainHeight, baseHeightWithoutRows + totalRowsHeight)
+
+        guard let visibleFrame = (resolveWindow()?.screen ?? NSScreen.main)?.visibleFrame else {
+            return NSSize(
+                width: max(preferredMainWidth, minimum.width),
+                height: max(desiredHeight, minimum.height)
+            )
+        }
+
+        let maxWidth = max(minimum.width, visibleFrame.width - 40)
+        let maxHeight = max(minimum.height, visibleFrame.height - 40)
+        return NSSize(
+            width: min(max(preferredMainWidth, minimum.width), maxWidth),
+            height: min(max(desiredHeight, minimum.height), maxHeight)
+        )
+    }
 
     private func configureWindowForMode(_ newMode: AppMode) {
         DispatchQueue.main.async {
@@ -159,6 +161,7 @@ struct ContentView: View {
             
             switch newMode {
             case .main, .editUsers:
+                let mainSize = self.clampedMainWindowSize(userCount: self.userManager.users.count)
                 window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
                 window.level = .normal
                 window.backgroundColor = .windowBackgroundColor
@@ -167,8 +170,8 @@ struct ContentView: View {
                 window.contentView?.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
                 window.titleVisibility = .visible
                 window.titlebarAppearsTransparent = false
-                window.setContentSize(NSSize(width: self.savedMainWidth, height: self.savedMainHeight))
-                window.minSize = NSSize(width: 300, height: 400)
+                window.setContentSize(mainSize)
+                window.minSize = NSSize(width: mainMinimumWidth, height: mainMinimumHeight)
                 window.maxSize = NSSize(width: 2000, height: 2000)
                 window.hasShadow = true
                 window.isMovableByWindowBackground = false
@@ -235,10 +238,7 @@ struct ContentView: View {
     }
     
     func finishSession() {
-        mode = .main
-        showEnd = false
-        currentUser = nil
-        sessionUsers = []
         timer?.invalidate()
+        NSApp.terminate(nil)
     }
 }

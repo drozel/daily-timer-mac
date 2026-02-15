@@ -33,6 +33,103 @@ struct AnimatedButtonStyle: ButtonStyle {
     }
 }
 
+struct LiquidGlassContainer<Content: View>: NSViewRepresentable {
+    let cornerRadius: CGFloat
+    let content: Content
+
+    init(cornerRadius: CGFloat = 28, @ViewBuilder content: () -> Content) {
+        self.cornerRadius = cornerRadius
+        self.content = content()
+    }
+
+    func makeNSView(context: Context) -> LiquidGlassHostView<Content> {
+        LiquidGlassHostView(rootView: content, cornerRadius: cornerRadius)
+    }
+
+    func updateNSView(_ nsView: LiquidGlassHostView<Content>, context: Context) {
+        nsView.update(rootView: content, cornerRadius: cornerRadius)
+    }
+}
+
+final class LiquidGlassHostView<Content: View>: NSView {
+    private var hostingView: NSHostingView<Content>
+    private var glassView: NSView
+    private var contentContainer: NSView
+    private var cornerRadius: CGFloat
+
+    init(rootView: Content, cornerRadius: CGFloat) {
+        self.hostingView = NSHostingView(rootView: rootView)
+        self.cornerRadius = cornerRadius
+        let (glassView, contentContainer) = Self.makeGlassSurface()
+        self.glassView = glassView
+        self.contentContainer = contentContainer
+        super.init(frame: .zero)
+        setupViewTree()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func update(rootView: Content, cornerRadius: CGFloat) {
+        self.cornerRadius = cornerRadius
+        hostingView.rootView = rootView
+        layer?.cornerRadius = cornerRadius
+    }
+
+    private func setupViewTree() {
+        wantsLayer = true
+        layer?.backgroundColor = NSColor.clear.cgColor
+        layer?.cornerRadius = cornerRadius
+        layer?.masksToBounds = true
+
+        glassView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(glassView)
+        NSLayoutConstraint.activate([
+            glassView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            glassView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            glassView.topAnchor.constraint(equalTo: topAnchor),
+            glassView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        hostingView.wantsLayer = true
+        hostingView.layer?.backgroundColor = NSColor.clear.cgColor
+        contentContainer.addSubview(hostingView)
+        NSLayoutConstraint.activate([
+            hostingView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
+            hostingView.topAnchor.constraint(equalTo: contentContainer.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor)
+        ])
+    }
+
+    private static func makeGlassSurface() -> (glass: NSView, content: NSView) {
+        if let glassClass = NSClassFromString("NSGlassEffectView") as? NSView.Type {
+            let glassView = glassClass.init(frame: .zero)
+            glassView.wantsLayer = true
+            glassView.layer?.backgroundColor = NSColor.clear.cgColor
+
+            // NSGlassEffectView hosts content in `contentView`.
+            if glassView.responds(to: NSSelectorFromString("contentView")),
+               let unmanaged = glassView.perform(NSSelectorFromString("contentView")),
+               let contentView = unmanaged.takeUnretainedValue() as? NSView {
+                return (glassView, contentView)
+            }
+            return (glassView, glassView)
+        }
+
+        let fallback = NSVisualEffectView()
+        fallback.material = .underWindowBackground
+        fallback.blendingMode = .behindWindow
+        fallback.state = .followsWindowActiveState
+        fallback.isEmphasized = false
+        fallback.wantsLayer = true
+        fallback.layer?.backgroundColor = NSColor.clear.cgColor
+        return (fallback, fallback)
+    }
+}
+
 struct VisualEffectGlassView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
     let blendingMode: NSVisualEffectView.BlendingMode
@@ -90,14 +187,6 @@ struct FirstMouseAcceptingView<Content: View>: NSViewRepresentable {
 
 // Custom NSHostingView that accepts first mouse
 class FirstMouseAcceptingHostingView<Content: View>: NSHostingView<Content> {
-    override var isOpaque: Bool { false }
-
-    override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-        wantsLayer = true
-        layer?.backgroundColor = NSColor.clear.cgColor
-    }
-
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         return true
     }

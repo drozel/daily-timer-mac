@@ -9,7 +9,7 @@ struct DailyTimerApp: App {
             ContentView()
         }
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 450, height: 600)
+        .defaultSize(width: 420, height: 540)
     }
 }
 

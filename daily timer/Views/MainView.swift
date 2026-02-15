@@ -7,7 +7,7 @@ struct MainView: View {
     let onEditUsers: () -> Void
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 18) {
             UserListView(userManager: userManager)
             TimerSettingsView(timeout: $timeout)
             SessionInfoView(userManager: userManager, timeout: timeout)
@@ -17,7 +17,7 @@ struct MainView: View {
                 onEditUsers: onEditUsers
             )
         }
-        .padding(24)
+        .padding(20)
     }
 }
 
