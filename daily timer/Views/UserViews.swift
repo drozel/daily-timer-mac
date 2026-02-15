@@ -113,6 +113,9 @@ struct EditUserView: View {
             .padding()
         }
         .padding()
+        .onChange(of: userManager.users) { _ in
+            userManager.saveUsers()
+        }
     }
 
     func addUser(scrollProxy: ScrollViewProxy) {

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct User: Identifiable, Codable {
+struct User: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
     var isSelected: Bool
@@ -16,13 +16,17 @@ struct User: Identifiable, Codable {
 
 class UserManager: ObservableObject {
     @Published var users: [User] = []
+    private let defaults: UserDefaults
+    private let storageKey: String
 
-    init() {
+    init(defaults: UserDefaults = .standard, storageKey: String = "userList") {
+        self.defaults = defaults
+        self.storageKey = storageKey
         loadUsers()
     }
 
     func loadUsers() {
-        if let data = UserDefaults.standard.data(forKey: "userList"),
+        if let data = defaults.data(forKey: storageKey),
            let savedUsers = try? JSONDecoder().decode([User].self, from: data) {
             users = savedUsers
         } else {
@@ -36,7 +40,18 @@ class UserManager: ObservableObject {
 
     func saveUsers() {
         if let data = try? JSONEncoder().encode(users) {
-            UserDefaults.standard.set(data, forKey: "userList")
+            defaults.set(data, forKey: storageKey)
         }
+    }
+
+    func makeSessionUsers() -> [User] {
+        Self.makeSessionUsers(from: users)
+    }
+
+    static func makeSessionUsers(from users: [User]) -> [User] {
+        let selectedUsers = users.filter { $0.isSelected }
+        let usualUsers = selectedUsers.filter { !$0.isFinalizer }.shuffled()
+        let finalizerUsers = selectedUsers.filter { $0.isFinalizer }
+        return usualUsers + finalizerUsers
     }
 }

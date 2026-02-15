@@ -2,6 +2,14 @@ import SwiftUI
 
 struct TimerSettingsView: View {
     @Binding var timeout: Int
+    private let timeoutRange = 10...600
+    
+    private var clampedTimeout: Binding<Int> {
+        Binding(
+            get: { timeout },
+            set: { timeout = min(max($0, timeoutRange.lowerBound), timeoutRange.upperBound) }
+        )
+    }
     
     var body: some View {
         VStack(spacing: 12) {
@@ -17,10 +25,13 @@ struct TimerSettingsView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.primary)
                 
-                TextField("90", value: $timeout, formatter: NumberFormatter())
+                TextField("90", value: clampedTimeout, formatter: timeoutFormatter)
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .frame(width: 80)
+                
+                Stepper("", value: clampedTimeout, in: timeoutRange, step: 5)
+                    .labelsHidden()
                 
                 Text("seconds")
                     .font(.system(size: 16, weight: .medium))
@@ -37,6 +48,14 @@ struct TimerSettingsView: View {
         }
     }
 }
+
+private let timeoutFormatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .none
+    formatter.minimum = 10
+    formatter.maximum = 600
+    return formatter
+}()
 
 struct SessionInfoView: View {
     @ObservedObject var userManager: UserManager
