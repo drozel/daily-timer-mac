@@ -9,6 +9,7 @@ struct ContentView: View {
     
     // MARK: - App Storage
     @AppStorage("timerSeconds") private var timeout: Int = 90
+    @AppStorage("showSessionProgressList") private var showSessionProgressList: Bool = true
     private let minTimeout = 10
     private let maxTimeout = 600
     private let preferredMainWidth: Double = 420
@@ -36,13 +37,25 @@ struct ContentView: View {
             Group {
                 switch mode {
                 case .main:
-                    MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession)
+                    MainView(
+                        userManager: userManager,
+                        timeout: $timeout,
+                        showSessionProgressList: $showSessionProgressList,
+                        onStartSession: startSession
+                    )
                     
                 case .timer:
                     LiquidGlassContainer(cornerRadius: 28) {
                         VStack {
                             if let currentUser = currentUser {
-                                TimerView(currentUser: currentUser, timeRemaining: timeRemaining, onNextUser: nextUser)
+                                TimerView(
+                                    currentUser: currentUser,
+                                    timeRemaining: timeRemaining,
+                                    sessionUsers: sessionUsers,
+                                    currentUserID: currentUser.id,
+                                    showSessionProgressList: showSessionProgressList,
+                                    onNextUser: nextUser
+                                )
                             } else if showEnd {
                                 SessionEndView(onFinish: finishSession)
                             }
@@ -120,6 +133,25 @@ struct ContentView: View {
             height: min(max(desiredHeight, minimum.height), maxHeight)
         )
     }
+    
+    private func clampedTimerWindowSize(userCount: Int, showProgressList: Bool) -> NSSize {
+        let width: CGFloat = 200
+        let baseHeight: CGFloat = 240
+        guard showProgressList else {
+            return NSSize(width: width, height: baseHeight)
+        }
+
+        let rowHeight: CGFloat = 20
+        let extraHeight = CGFloat(userCount) * rowHeight
+        let desiredHeight = baseHeight + min(extraHeight, 220)
+
+        guard let visibleFrame = (resolveWindow()?.screen ?? NSScreen.main)?.visibleFrame else {
+            return NSSize(width: width, height: desiredHeight)
+        }
+
+        let maxHeight = max(baseHeight, visibleFrame.height - 60)
+        return NSSize(width: width, height: min(desiredHeight, maxHeight))
+    }
 
     private func configureWindowForMode(_ newMode: AppMode) {
         DispatchQueue.main.async {
@@ -147,6 +179,10 @@ struct ContentView: View {
                 window.contentView?.superview?.layer?.masksToBounds = false
                 
             case .timer:
+                let timerSize = self.clampedTimerWindowSize(
+                    userCount: self.sessionUsers.count,
+                    showProgressList: self.showSessionProgressList
+                )
                 window.styleMask = [.borderless, .fullSizeContentView]
                 window.level = .floating
                 window.backgroundColor = .clear
@@ -158,9 +194,9 @@ struct ContentView: View {
                 window.titlebarAppearsTransparent = true
                 window.isMovableByWindowBackground = true
                 window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
-                window.setContentSize(NSSize(width: 200, height: 240))
-                window.minSize = NSSize(width: 200, height: 240)
-                window.maxSize = NSSize(width: 200, height: 240)
+                window.setContentSize(timerSize)
+                window.minSize = timerSize
+                window.maxSize = timerSize
                 window.contentView?.superview?.wantsLayer = true
                 window.contentView?.superview?.layer?.cornerRadius = 28
                 window.contentView?.superview?.layer?.backgroundColor = NSColor.clear.cgColor

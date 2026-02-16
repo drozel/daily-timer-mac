@@ -3,12 +3,14 @@ import SwiftUI
 struct MainView: View {
     @ObservedObject var userManager: UserManager
     @Binding var timeout: Int
+    @Binding var showSessionProgressList: Bool
     let onStartSession: () -> Void
     
     var body: some View {
         VStack(spacing: 18) {
             UserListView(userManager: userManager)
             TimerSettingsView(timeout: $timeout)
+            TimerPresentationSettingsView(showSessionProgressList: $showSessionProgressList)
             SessionInfoView(userManager: userManager, timeout: timeout)
             ActionButtonsView(
                 userManager: userManager,
@@ -16,6 +18,25 @@ struct MainView: View {
             )
         }
         .padding(20)
+    }
+}
+
+struct TimerPresentationSettingsView: View {
+    @Binding var showSessionProgressList: Bool
+
+    var body: some View {
+        HStack {
+            Toggle("Show session progress list", isOn: $showSessionProgressList)
+                .font(.system(size: 13, weight: .medium))
+                .toggleStyle(.switch)
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.gray.opacity(0.1))
+        )
     }
 }
 
