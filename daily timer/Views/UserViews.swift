@@ -1,7 +1,9 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct UserListView: View {
     @ObservedObject var userManager: UserManager
+    @State private var draggedUserID: UUID?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -10,18 +12,48 @@ struct UserListView: View {
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
                 Spacer()
+                Button(action: addUser) {
+                    Label("Add", systemImage: "plus")
+                        .font(.system(size: 13, weight: .semibold))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .controlSize(.small)
             }
             
             ScrollView {
                 LazyVStack(spacing: 5) {
                     ForEach($userManager.users) { $user in
                         UserRowView(user: $user, userManager: userManager)
+                            .onDrag {
+                                draggedUserID = user.id
+                                return NSItemProvider(object: user.id.uuidString as NSString)
+                            }
+                            .onDrop(
+                                of: [UTType.text],
+                                delegate: UserRowDropDelegate(
+                                    targetUser: user,
+                                    userManager: userManager,
+                                    draggedUserID: $draggedUserID
+                                )
+                            )
                     }
                 }
                 .padding(.horizontal, 2)
             }
+            .onDrop(
+                of: [UTType.text],
+                delegate: UserListDropDelegate(userManager: userManager, draggedUserID: $draggedUserID)
+            )
             .accessibilityIdentifier("usersScrollView")
         }
+    }
+    
+    private func addUser() {
+        let newIndex = userManager.users.count + 1
+        let newUser = User(name: "User \(newIndex)", isSelected: true, isFinalizer: false)
+        userManager.users.append(newUser)
+        userManager.saveUsers()
     }
 }
 
@@ -29,6 +61,8 @@ struct UserRowView: View {
     @Binding var user: User
     let userManager: UserManager
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isRenameSheetPresented = false
+    @State private var draftName = ""
     
     private var rowFillColor: Color {
         if user.isSelected {
@@ -84,7 +118,115 @@ struct UserRowView: View {
                     )
             )
         }
+        .contextMenu {
+            Button("Rename") {
+                draftName = user.name
+                isRenameSheetPresented = true
+            }
+            Button("Move Up") {
+                moveUser(by: -1)
+            }
+            .disabled(userIndex <= 0)
+            Button("Move Down") {
+                moveUser(by: 1)
+            }
+            .disabled(userIndex < 0 || userIndex >= userManager.users.count - 1)
+            Divider()
+            Button(user.isFinalizer ? "Unset Finalizer" : "Set as Finalizer") {
+                user.isFinalizer.toggle()
+                userManager.saveUsers()
+            }
+            Divider()
+            Button("Delete User", role: .destructive) {
+                if let index = userManager.users.firstIndex(where: { $0.id == user.id }) {
+                    userManager.users.remove(at: index)
+                    userManager.saveUsers()
+                }
+            }
+        }
+        .sheet(isPresented: $isRenameSheetPresented) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Rename User")
+                    .font(.headline)
+                TextField("Name", text: $draftName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                HStack {
+                    Spacer()
+                    Button("Cancel") {
+                        isRenameSheetPresented = false
+                    }
+                    Button("Save") {
+                        let trimmed = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !trimmed.isEmpty {
+                            user.name = trimmed
+                            userManager.saveUsers()
+                        }
+                        isRenameSheetPresented = false
+                    }
+                    .keyboardShortcut(.defaultAction)
+                }
+            }
+            .padding(18)
+            .frame(width: 320)
+        }
         .accessibilityIdentifier("userRow-\(user.name)")
+    }
+    
+    private var userIndex: Int {
+        userManager.users.firstIndex(where: { $0.id == user.id }) ?? -1
+    }
+    
+    private func moveUser(by offset: Int) {
+        let from = userIndex
+        let to = from + offset
+        guard from >= 0, to >= 0, to < userManager.users.count else { return }
+        let movingUser = userManager.users.remove(at: from)
+        userManager.users.insert(movingUser, at: to)
+        userManager.saveUsers()
+    }
+}
+
+private struct UserRowDropDelegate: DropDelegate {
+    let targetUser: User
+    let userManager: UserManager
+    @Binding var draggedUserID: UUID?
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedUserID = nil
+        userManager.saveUsers()
+        return true
+    }
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedUserID,
+              draggedUserID != targetUser.id,
+              let fromIndex = userManager.users.firstIndex(where: { $0.id == draggedUserID }),
+              let toIndex = userManager.users.firstIndex(where: { $0.id == targetUser.id })
+        else { return }
+
+        withAnimation(.easeInOut(duration: 0.15)) {
+            let movedUser = userManager.users.remove(at: fromIndex)
+            userManager.users.insert(movedUser, at: toIndex)
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+}
+
+private struct UserListDropDelegate: DropDelegate {
+    let userManager: UserManager
+    @Binding var draggedUserID: UUID?
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedUserID = nil
+        userManager.saveUsers()
+        return true
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
     }
 }
 

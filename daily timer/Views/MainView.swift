@@ -4,7 +4,6 @@ struct MainView: View {
     @ObservedObject var userManager: UserManager
     @Binding var timeout: Int
     let onStartSession: () -> Void
-    let onEditUsers: () -> Void
     
     var body: some View {
         VStack(spacing: 18) {
@@ -13,8 +12,7 @@ struct MainView: View {
             SessionInfoView(userManager: userManager, timeout: timeout)
             ActionButtonsView(
                 userManager: userManager,
-                onStartSession: onStartSession,
-                onEditUsers: onEditUsers
+                onStartSession: onStartSession
             )
         }
         .padding(20)
@@ -24,23 +22,10 @@ struct MainView: View {
 struct ActionButtonsView: View {
     let userManager: UserManager
     let onStartSession: () -> Void
-    let onEditUsers: () -> Void
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Edit Users Button
-            AnimatedButton(action: onEditUsers) {
-                Text("Edit Users")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.blue)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 22)
-                            .stroke(.blue, lineWidth: 1.5)
-                    )
-            }
-            
+        HStack {
+            Spacer()
             // START Button
             AnimatedButton(
                 action: onStartSession,
@@ -56,6 +41,7 @@ struct ActionButtonsView: View {
                             .fill(.blue)
                     )
             }
+            Spacer()
         }
         .padding(.bottom, 8)
     }

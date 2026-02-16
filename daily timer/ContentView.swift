@@ -1,31 +1,10 @@
 import SwiftUI
 
-struct BackButton: View {
-    let action: () -> Void
-    
-    var body: some View {
-        AnimatedButton(action: action) {
-            HStack {
-                Text("Back")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.blue)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 22)
-                    .stroke(.blue, lineWidth: 1.5)
-            )
-        }
-    }
-}
-
 struct ContentView: View {
     // MARK: - Types
     enum AppMode: Int {
         case main = 1
         case timer = 2
-        case editUsers = 3
     }
     
     // MARK: - App Storage
@@ -57,9 +36,7 @@ struct ContentView: View {
             Group {
                 switch mode {
                 case .main:
-                    MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession, onEditUsers: {
-                        mode = .editUsers
-                    })
+                    MainView(userManager: userManager, timeout: $timeout, onStartSession: startSession)
                     
                 case .timer:
                     LiquidGlassContainer(cornerRadius: 28) {
@@ -73,17 +50,6 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    
-                case .editUsers:
-                    VStack {
-                        EditUserView(userManager: userManager)
-                        
-                        BackButton {
-                            userManager.saveUsers()
-                            mode = .main
-                        }
-                    }
-                    .padding()
                 }
             }
             .padding(mode == .timer ? 0 : 24)
@@ -160,7 +126,7 @@ struct ContentView: View {
             guard let window = self.resolveWindow() else { return }
             
             switch newMode {
-            case .main, .editUsers:
+            case .main:
                 let mainSize = self.clampedMainWindowSize(userCount: self.userManager.users.count)
                 window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
                 window.level = .normal
