@@ -23,12 +23,32 @@ final class daily_timerUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+    func testMainWindowLayoutForMultipleUserCounts() throws {
+        for userCount in [1, 5, 10, 50, 100] {
+            let app = XCUIApplication()
+            app.launchEnvironment["UITEST_USER_COUNT"] = "\(userCount)"
+            app.launchEnvironment["UITEST_APPEARANCE"] = "light"
+            app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+            XCTAssertTrue(app.staticTexts["Teammates"].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.buttons["START"].waitForExistence(timeout: 5))
+
+            XCTAssertTrue(waitForUserRow("User 1", in: app, timeout: 6))
+
+            let targetUserLabel = "User \(userCount)"
+            if userCount <= 10 {
+                XCTAssertTrue(waitForUserRow(targetUserLabel, in: app, timeout: 6))
+            } else {
+                XCTAssertTrue(scrollToUserRow(targetUserLabel, in: app, maxSwipes: 10), "Expected to find \(targetUserLabel)")
+            }
+
+            let attachment = XCTAttachment(screenshot: app.screenshot())
+            attachment.name = "Main Window - \(userCount) users"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+
+            app.terminate()
+        }
     }
 
     @MainActor
@@ -37,5 +57,41 @@ final class daily_timerUITests: XCTestCase {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             XCUIApplication().launch()
         }
+    }
+
+    private func userRowElement(_ userName: String, in app: XCUIApplication) -> XCUIElement {
+        app.buttons["userRow-\(userName)"]
+    }
+
+    private func waitForUserRow(_ label: String, in app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if userRowExists(label, in: app) {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return false
+    }
+
+    private func userRowExists(_ label: String, in app: XCUIApplication) -> Bool {
+        userRowElement(label, in: app).exists
+    }
+
+    private func scrollToUserRow(_ label: String, in app: XCUIApplication, maxSwipes: Int) -> Bool {
+        if userRowExists(label, in: app) {
+            return true
+        }
+        let scrollView = app.scrollViews["usersScrollView"]
+        guard scrollView.exists else { return false }
+
+        for _ in 0..<maxSwipes {
+            scrollView.swipeDown()
+            if userRowExists(label, in: app) {
+                return true
+            }
+        }
+
+        return false
     }
 }

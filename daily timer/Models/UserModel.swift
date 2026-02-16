@@ -18,14 +18,24 @@ class UserManager: ObservableObject {
     @Published var users: [User] = []
     private let defaults: UserDefaults
     private let storageKey: String
+    private let processInfo: ProcessInfo
 
-    init(defaults: UserDefaults = .standard, storageKey: String = "userList") {
+    init(defaults: UserDefaults = .standard, storageKey: String = "userList", processInfo: ProcessInfo = .processInfo) {
         self.defaults = defaults
         self.storageKey = storageKey
+        self.processInfo = processInfo
         loadUsers()
     }
 
     func loadUsers() {
+        if let uiTestCount = processInfo.environment["UITEST_USER_COUNT"],
+           let count = Int(uiTestCount), count > 0 {
+            users = (1...count).map { index in
+                User(name: "User \(index)", isSelected: true, isFinalizer: false)
+            }
+            return
+        }
+
         if let data = defaults.data(forKey: storageKey),
            let savedUsers = try? JSONDecoder().decode([User].self, from: data) {
             users = savedUsers
@@ -39,6 +49,9 @@ class UserManager: ObservableObject {
     }
 
     func saveUsers() {
+        if processInfo.environment["UITEST_USER_COUNT"] != nil {
+            return
+        }
         if let data = try? JSONEncoder().encode(users) {
             defaults.set(data, forKey: storageKey)
         }

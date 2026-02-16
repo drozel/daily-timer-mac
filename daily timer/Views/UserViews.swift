@@ -20,6 +20,7 @@ struct UserListView: View {
                 }
                 .padding(.horizontal, 2)
             }
+            .accessibilityIdentifier("usersScrollView")
         }
     }
 }
@@ -27,6 +28,22 @@ struct UserListView: View {
 struct UserRowView: View {
     @Binding var user: User
     let userManager: UserManager
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var rowFillColor: Color {
+        if user.isSelected {
+            return colorScheme == .dark ? .blue.opacity(0.22) : .blue.opacity(0.08)
+        }
+        return colorScheme == .dark ? .white.opacity(0.10) : .gray.opacity(0.10)
+    }
+    
+    private var rowStrokeColor: Color {
+        colorScheme == .dark ? .white.opacity(0.16) : .black.opacity(0.06)
+    }
+    
+    private var unselectedIconColor: Color {
+        colorScheme == .dark ? .white.opacity(0.75) : .secondary
+    }
     
     var body: some View {
         AnimatedButton(action: {
@@ -36,7 +53,7 @@ struct UserRowView: View {
             HStack(spacing: 10) {
                 Image(systemName: user.isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(user.isSelected ? .blue : .secondary)
+                    .foregroundColor(user.isSelected ? .blue : unselectedIconColor)
                 
                 Text(user.name)
                     .font(.system(size: 15, weight: .medium))
@@ -60,9 +77,14 @@ struct UserRowView: View {
             .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(user.isSelected ? .blue.opacity(0.05) : .gray.opacity(0.1))
+                    .fill(rowFillColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(rowStrokeColor, lineWidth: 1)
+                    )
             )
         }
+        .accessibilityIdentifier("userRow-\(user.name)")
     }
 }
 
