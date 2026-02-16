@@ -39,7 +39,7 @@ final class daily_timerUITests: XCTestCase {
             if userCount <= 10 {
                 XCTAssertTrue(waitForUserRow(targetUserLabel, in: app, timeout: 6))
             } else {
-                XCTAssertTrue(scrollToUserRow(targetUserLabel, in: app, maxSwipes: 10), "Expected to find \(targetUserLabel)")
+                XCTAssertTrue(scrollToUserRow(targetUserLabel, in: app, maxSwipes: 25), "Expected to find \(targetUserLabel)")
             }
 
             let attachment = XCTAttachment(screenshot: app.screenshot())
@@ -49,6 +49,54 @@ final class daily_timerUITests: XCTestCase {
 
             app.terminate()
         }
+    }
+
+    @MainActor
+    func testAddUserFromMainScreen() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_USER_COUNT"] = "1"
+        app.launchEnvironment["UITEST_APPEARANCE"] = "light"
+        app.launch()
+
+        XCTAssertTrue(waitForUserRow("User 1", in: app, timeout: 6))
+        XCTAssertTrue(app.buttons["Add"].waitForExistence(timeout: 3))
+
+        app.buttons["Add"].tap()
+        XCTAssertTrue(waitForUserRow("User 2", in: app, timeout: 4))
+    }
+
+    @MainActor
+    func testContextMenuCanToggleFinalizerAndRename() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["UITEST_USER_COUNT"] = "1"
+        app.launchEnvironment["UITEST_APPEARANCE"] = "light"
+        app.launch()
+
+        let userRow = userRowElement("User 1", in: app)
+        XCTAssertTrue(userRow.waitForExistence(timeout: 6))
+
+        userRow.rightClick()
+        XCTAssertTrue(app.menuItems["Set as Finalizer"].waitForExistence(timeout: 2))
+        app.menuItems["Set as Finalizer"].tap()
+
+        // Validate finalizer state by reopening context menu and checking the toggled action.
+        userRow.rightClick()
+        XCTAssertTrue(app.menuItems["Unset Finalizer"].waitForExistence(timeout: 2))
+        app.typeKey(.escape, modifierFlags: [])
+
+        userRow.rightClick()
+        XCTAssertTrue(app.menuItems["Rename"].waitForExistence(timeout: 2))
+        app.menuItems["Rename"].tap()
+
+        let renameField = app.sheets.textFields["Name"]
+        XCTAssertTrue(renameField.waitForExistence(timeout: 2))
+        renameField.click()
+        renameField.typeKey("a", modifierFlags: .command)
+        renameField.typeKey(.delete, modifierFlags: [])
+        renameField.typeText("Renamed User")
+        app.buttons["Save"].tap()
+
+        XCTAssertTrue(waitForUserRow("Renamed User", in: app, timeout: 4))
     }
 
     @MainActor

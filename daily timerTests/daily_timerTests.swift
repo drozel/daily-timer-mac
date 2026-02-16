@@ -61,4 +61,55 @@ final class DailyTimerTests: XCTestCase {
             XCTAssertTrue(session[firstFinalizer...].allSatisfy(\.isFinalizer))
         }
     }
+
+    func testUITestEnvironmentSeedsRequestedUserCount() {
+        let defaults = makeIsolatedDefaults()
+        let manager = UserManager(
+            defaults: defaults,
+            storageKey: "userList-test",
+            environment: ["UITEST_USER_COUNT": "5"]
+        )
+
+        XCTAssertEqual(manager.users.count, 5)
+        XCTAssertEqual(manager.users.first?.name, "User 1")
+        XCTAssertEqual(manager.users.last?.name, "User 5")
+        XCTAssertTrue(manager.users.allSatisfy(\.isSelected))
+    }
+
+    func testInvalidUITestUserCountFallsBackToStoredOrDefaultUsers() {
+        let defaults = makeIsolatedDefaults()
+        let key = "userList-test"
+        let storedUsers = [
+            User(name: "Stored 1", isSelected: true, isFinalizer: false),
+            User(name: "Stored 2", isSelected: false, isFinalizer: true)
+        ]
+        let data = try! JSONEncoder().encode(storedUsers)
+        defaults.set(data, forKey: key)
+
+        let manager = UserManager(
+            defaults: defaults,
+            storageKey: key,
+            environment: ["UITEST_USER_COUNT": "not-a-number"]
+        )
+
+        XCTAssertEqual(manager.users.map(\.name), ["Stored 1", "Stored 2"])
+    }
+
+    func testSaveIsNoOpInUITestMode() {
+        let defaults = makeIsolatedDefaults()
+        let key = "userList-test"
+
+        let manager = UserManager(
+            defaults: defaults,
+            storageKey: key,
+            environment: ["UITEST_USER_COUNT": "3"]
+        )
+
+        var mutated = manager.users
+        mutated.append(User(name: "ShouldNotPersist", isSelected: true, isFinalizer: false))
+        manager.users = mutated
+        manager.saveUsers()
+
+        XCTAssertNil(defaults.data(forKey: key))
+    }
 }
